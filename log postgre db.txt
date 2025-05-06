@@ -1,0 +1,11 @@
+# 1) Définir la variable d’environnement pour le mot de passe
+$env:PGPASSWORD = "Gr05bo55"
+
+# 2) Lancer psql avec l’utilisateur, la base et le script
+psql `
+  -h 127.0.0.1 `
+  -p 5432 `
+  -U konnaxion_user `
+  -d konnaxion_db `
+  -v ON_ERROR_STOP=1 `
+  -f ".\ethikos_init.sql"
