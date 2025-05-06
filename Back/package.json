@@ -1,0 +1,44 @@
+{
+  "name": "konnaxion_project",
+  "version": "0.1.0",
+  "devDependencies": {
+    "@babel/core": "^7.16.5",
+    "@babel/preset-env": "^7.16.5",
+    "@popperjs/core": "^2.10.2",
+    "autoprefixer": "^10.4.0",
+    "babel-loader": "^9.1.2",
+    "bootstrap": "^5.2.3",
+    "css-loader": "^7.1.2",
+    "mini-css-extract-plugin": "^2.4.5",
+    "node-sass-tilde-importer": "^1.0.2",
+    "pixrem": "^5.0.0",
+    "postcss": "^8.3.11",
+    "postcss-loader": "^8.0.0",
+    "postcss-preset-env": "^10.0.3",
+    "prettier": "^3.4.2",
+    "prettier-plugin-django": "^0.5.18",
+    "sass": "1.77.6",
+    "sass-loader": "^16.0.1",
+    "webpack": "^5.82.0",
+    "webpack-bundle-tracker": "^3.0.1",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.0.2",
+    "webpack-merge": "^6.0.1"
+  },
+  "engines": {
+    "node": "22.13"
+  },
+  "browserslist": [
+    "last 2 versions"
+  ],
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
+  },
+  "scripts": {
+    "dev": "webpack serve --config webpack/dev.config.js",
+    "build": "webpack --config webpack/prod.config.js"
+  },
+  "packageManager": "pnpm@9.1.0+sha512.67f5879916a9293e5cf059c23853d571beaf4f753c707f40cb22bed5fb1578c6aad3b6c4107ccb3ba0b35be003eb621a16471ac836c87beb53f9d54bb4612724"
+}

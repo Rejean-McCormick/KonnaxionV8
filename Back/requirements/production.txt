@@ -1,0 +1,11 @@
+# PRECAUTION: avoid production dependencies that aren't in development
+
+-r base.txt
+
+gunicorn==20.1.0  # Downgraded from 23.0.0 to match tech stack
+psycopg[c]==3.2.4  # https://github.com/psycopg/psycopg
+sentry-sdk==2.20.0
+
+# Django Email
+# ------------------------------------------------------------------------------
+django-anymail[mailgun]==12.0  # https://github.com/anymail/django-anymail

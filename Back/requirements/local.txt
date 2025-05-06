@@ -1,0 +1,59 @@
+# -------------------------------
+# Core Frameworks & Libraries
+# -------------------------------
+Django                         # Full-stack web framework
+djangorestframework            # REST API support for Django
+channels                       # Real-time WebSocket support for Django
+celery                         # Asynchronous task processing
+redis                          # Redis client (used for caching, Channels, and Celery broker)
+psycopg                        # PostgreSQL adapter (optionally use extras for additional features)
+drf-spectacular                # OpenAPI schema generation for DRF
+django-allauth                 # Comprehensive account management and social logins
+djangorestframework-simplejwt  # JWT authentication for DRF
+django-otp                   # Two-factor authentication for enhanced security
+
+# -------------------------------
+# Monitoring & Process Management
+# -------------------------------
+sentry-sdk                   # Error tracking and performance monitoring (Sentry)
+prometheus_client            # Exposes application metrics for Prometheus
+gunicorn                     # WSGI server for deploying Django applications
+
+# -------------------------------
+# Development Utilities & Tools
+# -------------------------------
+Werkzeug[watchdog]           # Utility library (with file-watching support)
+ipdb                         # Interactive Python debugger
+watchfiles                   # Auto-reload tool for file changes
+
+# -------------------------------
+# Testing Tools
+# -------------------------------
+mypy                         # Static type checker for Python
+django-stubs[compatible-mypy]  # Type stubs for Django (compatible with mypy)
+pytest                       # Testing framework
+pytest-sugar                 # Aesthetic test output for pytest
+djangorestframework-stubs    # Type stubs for Django REST Framework
+
+# -------------------------------
+# Documentation Tools
+# -------------------------------
+sphinx                       # Documentation generator
+sphinx-autobuild             # Live-reloading for Sphinx documentation
+
+# -------------------------------
+# Code Quality & Linting
+# -------------------------------
+ruff                         # Fast Python linter and code formatter
+coverage                     # Code coverage measurement
+djlint                       # Linter for Django templates and code
+pre-commit                   # Manage pre-commit hooks
+
+# -------------------------------
+# Django Testing & Utilities
+# -------------------------------
+factory-boy                 # Test fixtures for Django (and other Python projects)
+django-debug-toolbar         # Debug toolbar for Django projects
+django-extensions            # Extra management commands and utilities for Django
+django-coverage-plugin       # Integration between Django and coverage.py
+pytest-django                # Django plugin for pytest

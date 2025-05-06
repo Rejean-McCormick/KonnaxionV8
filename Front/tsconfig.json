@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Next.js",
+  "compilerOptions": {
+    /* ---------- base ---------- */
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+
+    /* ---------- path aliases ---------- */
+    "baseUrl": ".",
+    "paths": {
+      /* composants & layouts */
+      "@/components/*":              ["components/*"],
+      "@/components/layout-components/*": ["components/layout-components/*"],
+      "@/layouts/*":                 ["components/layout-components/*"],
+
+      /* context / thèmes */
+      "@/context/*":                 ["context/*"],
+      "@/theme/*":                   ["theme/*"],
+
+      /* routing & pages – ordre : pages ▶︎ app */
+      "@/ekoh/*":        ["pages/ekoh/*",        "app/ekoh/*"],
+      "@/ethikos/*":     ["pages/ethikos/*",     "app/ethikos/*"],
+      "@/keenkonnect/*": ["pages/keenkonnect/*", "app/keenkonnect/*"],
+      "@/konnected/*":   ["pages/konnected/*",   "app/konnected/*"],
+      "@/kreative/*":    ["pages/kreative/*",    "app/kreative/*"],
+
+      /* pages générales (inclut API) */
+      "@/pages/*":       ["pages/*"],
+
+      /* fourre‑tout : pages d’abord */
+      "@/*":             ["pages/*", "app/*", "*"]
+    },
+
+    /* ---------- types & plugins ---------- */
+    "types": ["node", "jest", "@testing-library/jest-dom"],
+    "plugins": [{ "name": "next" }]
+  },
+
+  /* ---------- fichiers pris en compte ---------- */
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.mjs",
+    "jest.config.js",
+    ".next/types/**/*.ts",
+    "eslint.config.mjs"
+  ],
+  "exclude": ["node_modules"]
+}

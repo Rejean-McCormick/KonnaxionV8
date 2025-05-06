@@ -1,0 +1,1186 @@
+# ===== Début de services/deliberate.ts =====
+// services/deliberate.ts
+import apiRequest from './_request';
+import type { Topic } from '@/types';
+
+/* ------------------------------------------------------------------ *
+ * 1 · Elite-Agora topic list                                          *
+ * ------------------------------------------------------------------ */
+
+export async function fetchEliteTopics(): Promise<{
+  list: (Topic & {
+    createdAt: string;
+    lastActivity: string;
+    hot: boolean; // stance spike flag
+  })[];
+}> {
+  return apiRequest.get('deliberate/elite/topics');
+}
+
+/* ------------------------------------------------------------------ *
+ * 2 · Drawer preview                                                  *
+ * ------------------------------------------------------------------ */
+
+export async function fetchTopicPreview(id: string): Promise<{
+  id: string;
+  title: string;
+  category: string;
+  createdAt: string;
+  latest: { id: string; author: string; body: string }[];
+}> {
+  return apiRequest.get(`deliberate/topics/${id}/preview`);
+}
+
+/* ------------------------------------------------------------------ *
+ * 3 · Create a new elite topic                                        *
+ * ------------------------------------------------------------------ */
+
+export async function createEliteTopic(payload: {
+  title: string;
+  category: string;
+}) {
+  return apiRequest.post('deliberate/elite/topics', payload);
+}
+
+# ===== Fin de services/deliberate.ts =====
+
+# ===== Début de services/decide.ts =====
+// services/decide.ts
+import apiRequest from './_request';
+import type { Ballot } from '@/types';
+
+/* ------------------------------------------------------------------ *
+ * 1. Elite ballots                                                    *
+ * ------------------------------------------------------------------ */
+
+/** GET /decide/elite/ballots */
+export async function fetchEliteBallots(): Promise<{
+  ballots: (Ballot & { turnout: number })[];
+}> {
+  return apiRequest.get('decide/elite/ballots');
+}
+
+/* ------------------------------------------------------------------ *
+ * 2. Public ballots + voting                                          *
+ * ------------------------------------------------------------------ */
+
+/** GET /decide/public/ballots */
+export async function fetchPublicBallots(): Promise<{
+  ballots: (Ballot & { options: string[]; turnout: number })[];
+}> {
+  return apiRequest.get('decide/public/ballots');
+}
+
+/** POST /decide/public/ballots/:id/vote */
+export async function submitPublicVote(
+  id: string,
+  option: string,
+): Promise<void> {
+  await apiRequest.post(`decide/public/ballots/${id}/vote`, { option });
+}
+
+/* ------------------------------------------------------------------ *
+ * 3. Results archive                                                  *
+ * ------------------------------------------------------------------ */
+
+/** GET /decide/results */
+export async function fetchDecisionResults(): Promise<{
+  items: {
+    id: string;
+    title: string;
+    scope: 'Elite' | 'Public';
+    passed: boolean;
+    closesAt: string;
+    region: string;
+  }[];
+}> {
+  return apiRequest.get('decide/results');
+}
+
+# ===== Fin de services/decide.ts =====
+
+# ===== Début de routes/routesEthikos.tsx =====
+// src/routesEthikos.tsx
+/* eslint-disable react/react-in-jsx-scope */
+
+import React from 'react';
+
+/* ------------------------------------------------------------------ */
+/*  Pulse (Dashboard-style insight pages)                              */
+/* ------------------------------------------------------------------ */
+import PulseOverview  from '@/ethikos/pulse/overview';
+import PulseLive      from '@/ethikos/pulse/live';
+import PulseTrends    from '@/ethikos/pulse/trends';
+import PulseHealth    from '@/ethikos/pulse/health';
+
+/* ------------------------------------------------------------------ */
+/*  Deliberate (Debates & Forums)                                      */
+/* ------------------------------------------------------------------ */
+import EliteAgora     from '@/ethikos/deliberate/elite';
+import Guidelines     from '@/ethikos/deliberate/guidelines';
+
+/* ------------------------------------------------------------------ */
+/*  Decide (Smart Voting)                                              */
+/* ------------------------------------------------------------------ */
+import EliteBallots   from '@/ethikos/decide/elite';
+import PublicBallots  from '@/ethikos/decide/public';
+import ResultsArchive from '@/ethikos/decide/results';
+import Methodology    from '@/ethikos/decide/methodology';
+
+/* ------------------------------------------------------------------ */
+/*  Impact                                                             */
+/* ------------------------------------------------------------------ */
+import ImpactTracker  from '@/ethikos/impact/tracker';
+import ImpactOutcomes from '@/ethikos/impact/outcomes';
+import ImpactFeedback from '@/ethikos/impact/feedback';
+
+/* ------------------------------------------------------------------ */
+/*  Reputation & Badges (Trust)                                        */
+/* ------------------------------------------------------------------ */
+import MyProfile      from '@/ethikos/trust/profile';
+import Credentials    from '@/ethikos/trust/credentials';
+import Badges         from '@/ethikos/trust/badges';
+
+/* ------------------------------------------------------------------ */
+/*  Learn                                                              */
+/* ------------------------------------------------------------------ */
+import Guides         from '@/ethikos/learn/guides';
+import Glossary       from '@/ethikos/learn/glossary';
+import Changelog      from '@/ethikos/learn/changelog';
+
+/* ------------------------------------------------------------------ */
+/*  Admin                                                              */
+/* ------------------------------------------------------------------ */
+import AdminModeration from '@/ethikos/admin/moderation';
+import AdminRoles      from '@/ethikos/admin/roles';
+import AdminAudit      from '@/ethikos/admin/audit';
+
+/* ------------------------------------------------------------------ */
+/*  Route type                                                         */
+/* ------------------------------------------------------------------ */
+interface Route {
+  path: string;
+  name: string;
+  rtlName?: string;
+  icon?: React.ReactNode;
+  component?: React.ComponentType<any>;
+  layout?: string;
+  collapse?: boolean;
+  state?: string;
+  views?: Route[];
+}
+
+/* ------------------------------------------------------------------ */
+/*  Route groups                                                       */
+/* ------------------------------------------------------------------ */
+
+const pulse: Route = {
+  collapse: true,
+  name: 'Pulse',
+  rtlName: 'Pulse',
+  icon: null,
+  state: 'pulseCollapse',
+  views: [
+    { path: '/ethikos/pulse/overview', name: 'Overview', component: PulseOverview, layout: '/ethikos' },
+    { path: '/ethikos/pulse/live',     name: 'Live Metrics', component: PulseLive, layout: '/ethikos' },
+    { path: '/ethikos/pulse/trends',   name: 'Trends', component: PulseTrends, layout: '/ethikos' },
+    { path: '/ethikos/pulse/health',   name: 'Participation Health', component: PulseHealth, layout: '/ethikos' },
+  ],
+};
+
+const deliberate: Route = {
+  collapse: true,
+  name: 'Debates & Forums',
+  rtlName: 'Debates & Forums',
+  icon: null,
+  state: 'debatesForumsCollapse',
+  views: [
+    { path: '/ethikos/deliberate/elite',       name: 'Elite Agora', component: EliteAgora, layout: '/ethikos' },
+    { path: '/ethikos/deliberate/guidelines',  name: 'Community Guidelines', component: Guidelines, layout: '/ethikos' },
+  ],
+};
+
+const decide: Route = {
+  collapse: true,
+  name: 'Smart Voting',
+  rtlName: 'Smart Voting',
+  icon: null,
+  state: 'smartVotingCollapse',
+  views: [
+    { path: '/ethikos/decide/elite',        name: 'Elite Ballots', component: EliteBallots, layout: '/ethikos' },
+    { path: '/ethikos/decide/public',       name: 'Public Ballots', component: PublicBallots, layout: '/ethikos' },
+    { path: '/ethikos/decide/results',      name: 'Results Archive', component: ResultsArchive, layout: '/ethikos' },
+    { path: '/ethikos/decide/methodology',  name: 'Methodology', component: Methodology, layout: '/ethikos' },
+  ],
+};
+
+const impact: Route = {
+  collapse: true,
+  name: 'Impact',
+  rtlName: 'Impact',
+  icon: null,
+  state: 'impactCollapse',
+  views: [
+    { path: '/ethikos/impact/tracker',  name: 'Implementation Tracker', component: ImpactTracker,  layout: '/ethikos' },
+    { path: '/ethikos/impact/outcomes', name: 'Outcomes Dashboard',    component: ImpactOutcomes, layout: '/ethikos' },
+    { path: '/ethikos/impact/feedback', name: 'Feedback Loops',        component: ImpactFeedback, layout: '/ethikos' },
+  ],
+};
+
+const reputationBadges: Route = {
+  collapse: true,
+  name: 'Reputation & Badges',
+  rtlName: 'Reputation & Badges',
+  icon: null,
+  state: 'reputationBadgesCollapse',
+  views: [
+    { path: '/ethikos/trust/profile',     name: 'My Profile',            component: MyProfile,   layout: '/ethikos' },
+    { path: '/ethikos/trust/credentials', name: 'Credentials',           component: Credentials, layout: '/ethikos' },
+    { path: '/ethikos/trust/badges',      name: 'Badges & Achievements', component: Badges,      layout: '/ethikos' },
+  ],
+};
+
+const learn: Route = {
+  collapse: true,
+  name: 'Learn',
+  rtlName: 'Learn',
+  icon: null,
+  state: 'learnCollapse',
+  views: [
+    { path: '/ethikos/learn/guides',    name: 'Guides',    component: Guides,    layout: '/ethikos' },
+    { path: '/ethikos/learn/glossary',  name: 'Glossary',  component: Glossary,  layout: '/ethikos' },
+    { path: '/ethikos/learn/changelog', name: 'Changelog', component: Changelog, layout: '/ethikos' },
+  ],
+};
+
+const admin: Route = {
+  collapse: true,
+  name: 'Admin',
+  rtlName: 'Admin',
+  icon: null,
+  state: 'adminCollapse',
+  views: [
+    { path: '/ethikos/admin/moderation', name: 'Moderation',   component: AdminModeration, layout: '/ethikos' },
+    { path: '/ethikos/admin/roles',      name: 'Role Management', component: AdminRoles,   layout: '/ethikos' },
+    { path: '/ethikos/admin/audit',      name: 'Audit Logs',   component: AdminAudit,      layout: '/ethikos' },
+  ],
+};
+
+/* ------------------------------------------------------------------ */
+/*  Export combined route list                                         */
+/* ------------------------------------------------------------------ */
+
+const ethikosRoutes: Route[] = [
+  pulse,
+  deliberate,
+  decide,
+  impact,
+  reputationBadges,
+  learn,
+  admin,
+];
+
+export default ethikosRoutes;
+
+# ===== Fin de routes/routesEthikos.tsx =====
+
+# ===== Début de pages/_app.tsx =====
+// pages/_app.tsx
+import '@/styles/tailwind.css';
+
+import type { AppProps, NextPage } from 'next/app';
+import React from 'react';
+import { ConfigProvider, theme as antdTheme } from 'antd';
+
+import { ThemeProvider, useTheme } from '@/context/ThemeContext';
+import MainLayout from '@/components/layout-components/MainLayout';
+
+/* ——— helper types ———————————————————————————— */
+type NextPageWithLayout = NextPage & {
+  /** supply a custom layout or return just `page` to skip MainLayout */
+  getLayout?: (page: React.ReactElement) => React.ReactNode;
+};
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
+
+/* ——— Ant Design provider (re-renders on theme change) ——— */
+const AntdProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { theme } = useTheme(); // ← tokens chosen by the user
+
+  return (
+    <ConfigProvider
+      theme={{
+        algorithm: antdTheme.defaultAlgorithm,
+        token    : theme,         // ← inject palette (incl. colorBgElevated)
+      }}
+    >
+      {children}
+    </ConfigProvider>
+  );
+};
+
+/* ——— application root ———————————————————————————— */
+function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+  const defaultGetLayout = (page: React.ReactElement) => (
+    <MainLayout>{page}</MainLayout>
+  );
+  const getLayout = Component.getLayout ?? defaultGetLayout;
+
+  return (
+    <ThemeProvider>
+      <AntdProvider>{getLayout(<Component {...pageProps} />)}</AntdProvider>
+    </ThemeProvider>
+  );
+}
+
+export default MyApp;
+
+# ===== Fin de pages/_app.tsx =====
+
+# ===== Début de pages/_document.tsx =====
+// pages/_document.js
+import Document, { Html, Head, Main, NextScript } from 'next/document';
+import { ServerStyleSheet } from 'styled-components';
+
+export default class MyDocument extends Document {
+  static async getInitialProps(ctx) {
+    const sheet = new ServerStyleSheet();
+    const originalRenderPage = ctx.renderPage;
+    
+    try {
+      ctx.renderPage = () =>
+        originalRenderPage({
+          enhanceApp: (App) => (props) =>
+            sheet.collectStyles(<App {...props} />),
+        });
+      
+      const initialProps = await Document.getInitialProps(ctx);
+      return {
+        ...initialProps,
+        styles: (
+          <>
+            {initialProps.styles}
+            {sheet.getStyleElement()}
+          </>
+        ),
+      };
+    } finally {
+      sheet.seal();
+    }
+  }
+  
+  render() {
+    return (
+      <Html>
+        <Head />
+        <body>
+          <Main />
+          <NextScript />
+        </body>
+      </Html>
+    );
+  }
+}
+
+# ===== Fin de pages/_document.tsx =====
+
+# ===== Début de app/layout.tsx =====
+import "styles/tailwind.css"
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  )
+}
+
+# ===== Fin de app/layout.tsx =====
+
+# ===== Début de app/page.tsx =====
+import { Metadata } from "next"
+import { Button } from "components/Button/Button"
+
+import { LP_GRID_ITEMS } from "lp-items"
+
+export const metadata: Metadata = {
+  title: "Next.js Enterprise Boilerplate",
+  twitter: {
+    card: "summary_large_image",
+  },
+  openGraph: {
+    url: "https://next-enterprise.vercel.app/",
+    images: [
+      {
+        width: 1200,
+        height: 630,
+        url: "https://raw.githubusercontent.com/Blazity/next-enterprise/main/.github/assets/project-logo.png",
+      },
+    ],
+  },
+}
+
+export default function Web() {
+  return (
+    <>
+      <section className="bg-white dark:bg-gray-900">
+        <div className="mx-auto grid max-w-(--breakpoint-xl) px-4 py-8 text-center lg:py-16">
+          <div className="mx-auto place-self-center">
+            <h1 className="mb-4 max-w-2xl text-4xl leading-none font-extrabold tracking-tight md:text-5xl xl:text-6xl dark:text-white">
+              Next.js Enterprise Boilerplate
+            </h1>
+            <p className="mb-6 max-w-2xl font-light text-gray-500 md:text-lg lg:mb-8 lg:text-xl dark:text-gray-400">
+              Jumpstart your enterprise project with our feature-packed, high-performance Next.js boilerplate!
+              Experience rapid UI development, AI-powered code reviews, and an extensive suite of tools for a smooth and
+              enjoyable development process.
+            </p>
+            <Button href="https://github.com/Blazity/next-enterprise" className="mr-3">
+              Get started
+            </Button>
+            <Button
+              href="https://vercel.com/new/git/external?repository-url=https://github.com/Blazity/next-enterprise"
+              intent="secondary"
+            >
+              Deploy Now
+            </Button>
+          </div>
+        </div>
+      </section>
+      <section className="bg-white dark:bg-gray-900">
+        <div className="mx-auto max-w-(--breakpoint-xl) px-4 py-8 sm:py-16 lg:px-6">
+          <div className="justify-center space-y-8 md:grid md:grid-cols-2 md:gap-12 md:space-y-0 lg:grid-cols-3">
+            {LP_GRID_ITEMS.map((singleItem) => (
+              <div key={singleItem.title} className="flex flex-col items-center justify-center text-center">
+                <div className="bg-primary-100 dark:bg-primary-900 mb-4 flex size-10 items-center justify-center rounded-full p-1.5 text-blue-700 lg:size-12">
+                  {singleItem.icon}
+                </div>
+                <h3 className="mb-2 text-xl font-bold dark:text-white">{singleItem.title}</h3>
+                <p className="text-gray-500 dark:text-gray-400">{singleItem.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  )
+}
+
+# ===== Fin de app/page.tsx =====
+
+# ===== Début de pages/ethikos/deliberate/elite.tsx =====
+import React from 'react';
+import {
+  PageContainer,
+  ProCard,
+  ProTable,
+  StatisticCard,
+  ModalForm,
+  ProFormText,
+  ProFormSelect,
+} from '@ant-design/pro-components';
+import {
+  Badge,
+  Button,
+  Drawer,
+  Empty,
+  Space,
+  Tag,
+  Tooltip,
+  message,
+} from 'antd';
+import { useRequest, useInterval } from 'ahooks';
+import {
+  PlusOutlined,
+  ReloadOutlined,
+  FireOutlined,
+} from '@ant-design/icons';
+import dayjs from 'dayjs';
+
+import usePageTitle from '@/hooks/usePageTitle';
+import {
+  fetchEliteTopics,
+  createEliteTopic,
+  fetchTopicPreview,
+} from '@/services/deliberate';
+import type { Topic } from '@/types';
+
+/* ------------------------------------------------------------------ */
+/*  Derived types                                                      */
+/* ------------------------------------------------------------------ */
+
+interface TopicRow extends Topic {
+  createdAt: string;
+  lastActivity: string;
+  hot: boolean; // computed server-side: stanceCount increased >= 20% in 24 h
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main component                                                     */
+/* ------------------------------------------------------------------ */
+
+export default function EliteAgora() {
+  usePageTitle('Deliberate · Elite Agora');
+
+  /* ---------- data ---------- */
+  const { data, loading, refresh } = useRequest(fetchEliteTopics);
+  useInterval(refresh, 60_000); // poll every minute
+
+  /* ---------- drawer state ---------- */
+  const [previewId, setPreviewId] = React.useState<string | null>(null);
+  const {
+    data: preview,
+    loading: previewLoading,
+    run: loadPreview,
+  } = useRequest((id: string) => fetchTopicPreview(id), { manual: true });
+
+  /* ---------- open drawer ---------- */
+  const openPreview = (row: TopicRow) => {
+    setPreviewId(row.id);
+    loadPreview(row.id);
+  };
+
+  /* ---------- KPI header ---------- */
+  const headerStats = [
+    {
+      label: 'Open topics',
+      value: data?.list.length ?? 0,
+    },
+    {
+      label: 'Avg stances / topic',
+      value:
+        data && data.list.length
+          ? Math.round(
+              data.list.reduce((sum, t) => sum + t.stanceCount, 0) /
+                data.list.length,
+            )
+          : 0,
+    },
+    {
+      label: 'Hot topics',
+      value: data?.list.filter((t) => t.hot).length ?? 0,
+    },
+  ];
+
+  /* ---------- columns ---------- */
+  const columns = [
+    {
+      title: 'Title',
+      dataIndex: 'title',
+      render: (_: any, row: TopicRow) => (
+        <a onClick={() => openPreview(row)}>{row.title}</a>
+      ),
+    },
+    {
+      title: 'Category',
+      dataIndex: 'category',
+      filters: true,
+      render: (v: string) => <Tag color="geekblue">{v}</Tag>,
+    },
+    {
+      title: 'Stances',
+      dataIndex: 'stanceCount',
+      sorter: true,
+      align: 'right' as const,
+    },
+    {
+      title: 'Last activity',
+      dataIndex: 'lastActivity',
+      valueType: 'fromNow',
+    },
+    {
+      title: '',
+      dataIndex: 'hot',
+      width: 60,
+      render: (v: boolean) =>
+        v ? (
+          <Tooltip title="Trending">
+            <FireOutlined style={{ color: '#fa541c' }} />
+          </Tooltip>
+        ) : null,
+    },
+  ];
+
+  /* ---------- render ---------- */
+  return (
+    <PageContainer
+      ghost
+      loading={loading}
+      extra={
+        <Space>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={refresh}
+            type="text"
+            title="Refresh list"
+          />
+          {/* role check goes here */}
+          <NewTopicButton onCreated={refresh} />
+        </Space>
+      }
+    >
+      {/* KPI summary */}
+      <ProCard gutter={16} wrap style={{ marginBottom: 16 }}>
+        {headerStats.map((k) => (
+          <StatisticCard
+            key={k.label}
+            colSpan={{ xs: 24, sm: 8 }}
+            statistic={{ title: k.label, value: k.value }}
+          />
+        ))}
+      </ProCard>
+
+      {/* list */}
+      <ProTable<TopicRow>
+        rowKey="id"
+        columns={columns}
+        dataSource={data?.list}
+        search={{
+          labelWidth: 90,
+          filterType: 'light',
+        }}
+        pagination={{ pageSize: 10 }}
+      />
+
+      {/* preview drawer */}
+      <Drawer
+        width={520}
+        open={!!previewId}
+        onClose={() => setPreviewId(null)}
+        title={preview?.title || 'Preview'}
+      >
+        {previewLoading ? (
+          <Empty description="Loading…" />
+        ) : preview ? (
+          <>
+            <p>
+              <strong>Category:</strong> {preview.category}
+            </p>
+            <p>
+              <strong>Opened:</strong>{' '}
+              {dayjs(preview.createdAt).format('YYYY-MM-DD HH:mm')}
+            </p>
+            <h4>Latest statements</h4>
+            <ul>
+              {preview.latest.map((s) => (
+                <li key={s.id}>
+                  <em>{s.author}</em> — {s.body}
+                </li>
+              ))}
+            </ul>
+            <Button
+              type="primary"
+              onClick={() =>
+                window.location.assign(`/ethikos/deliberate/${preview.id}`)
+              }
+            >
+              Go to thread →
+            </Button>
+          </>
+        ) : (
+          <Empty />
+        )}
+      </Drawer>
+    </PageContainer>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  New Topic modal                                                    */
+/* ------------------------------------------------------------------ */
+
+function NewTopicButton({ onCreated }: { onCreated: () => void }) {
+  const [visible, setVisible] = React.useState(false);
+
+  const { runAsync, loading } = useRequest(createEliteTopic, {
+    manual: true,
+    onSuccess: () => {
+      message.success('Topic created 🎉');
+      setVisible(false);
+      onCreated();
+    },
+  });
+
+  return (
+    <>
+      <Button
+        icon={<PlusOutlined />}
+        type="primary"
+        onClick={() => setVisible(true)}
+      >
+        New Topic
+      </Button>
+      <ModalForm
+        title="Create new topic"
+        open={visible}
+        onOpenChange={setVisible}
+        onFinish={async (values) => {
+          await runAsync(values);
+          return true;
+        }}
+        submitter={{ submitButtonProps: { loading } }}
+      >
+        <ProFormText
+          name="title"
+          label="Title"
+          rules={[{ required: true, min: 10 }]}
+        />
+        <ProFormSelect
+          name="category"
+          label="Category"
+          options={[
+            { label: 'AI Policy', value: 'AI Policy' },
+            { label: 'Biotech', value: 'Biotech' },
+            { label: 'Ethics', value: 'Ethics' },
+          ]}
+          rules={[{ required: true }]}
+        />
+      </ModalForm>
+    </>
+  );
+}
+
+# ===== Fin de pages/ethikos/deliberate/elite.tsx =====
+
+# ===== Début de pages/ethikos/deliberate/guidelines.tsx =====
+import { PageContainer } from '@ant-design/pro-components';
+import { Typography, Anchor, Divider } from 'antd';
+import usePageTitle from '@/hooks/usePageTitle';
+
+export default function Guidelines() {
+  usePageTitle('Deliberate · Guidelines');
+
+  return (
+    <PageContainer ghost>
+      <Anchor
+        affix
+        items={[
+          { key: 'etiquette', href: '#etiquette', title: '1. Etiquette' },
+          { key: 'evidence', href: '#evidence', title: '2. Evidence Rules' },
+          { key: 'moderation', href: '#moderation', title: '3. Moderation & Appeals' },
+        ]}
+      />
+
+      <Typography.Title id="etiquette" level={3}>
+        1. Etiquette
+      </Typography.Title>
+      <Typography.Paragraph>
+        • Be concise, civil, and on-topic. Personal attacks and profanity are removed.
+      </Typography.Paragraph>
+
+      <Divider />
+
+      <Typography.Title id="evidence" level={3}>
+        2. Evidence Rules
+      </Typography.Title>
+      <Typography.Paragraph>
+        • Claims must cite peer-reviewed sources or official data. Unsupported assertions can be flagged.
+      </Typography.Paragraph>
+
+      <Divider />
+
+      <Typography.Title id="moderation" level={3}>
+        3. Moderation & Appeals
+      </Typography.Title>
+      <Typography.Paragraph>
+        • First strike = comment hidden. Second strike = 24 h read-only. Appeals via “Request review” button.
+      </Typography.Paragraph>
+    </PageContainer>
+  );
+}
+
+# ===== Fin de pages/ethikos/deliberate/guidelines.tsx =====
+
+# ===== Début de pages/ethikos/deliberate/[topic].tsx =====
+import { PageContainer, ProCard } from '@ant-design/pro-components';
+import { Comment, Timeline, Typography } from 'antd';
+import { useRouter } from 'next/navigation';
+import { useRequest } from 'ahooks';
+import usePageTitle from '@/hooks/usePageTitle';
+import { fetchTopicDetail } from '@/services/deliberate';
+
+export default function TopicDetail() {
+  const { query } = useRouter();
+  const topicId = query.topic as string;
+
+  usePageTitle(`Deliberate · ${topicId}`);
+
+  const { data, loading } = useRequest(() => fetchTopicDetail(topicId), {
+    ready: !!topicId,
+  });
+
+  return (
+    <PageContainer ghost loading={loading}>
+      <Typography.Title level={3}>{data?.title}</Typography.Title>
+
+      <ProCard title="Statements Thread" ghost>
+        <Timeline>
+          {data?.statements.map(s => (
+            <Timeline.Item key={s.id}>
+              <Comment
+                author={s.author}
+                datetime={s.createdAt}
+                content={<Typography.Paragraph>{s.body}</Typography.Paragraph>}
+              />
+            </Timeline.Item>
+          ))}
+        </Timeline>
+      </ProCard>
+    </PageContainer>
+  );
+}
+
+# ===== Fin de pages/ethikos/deliberate/[topic].tsx =====
+
+# ===== Début de pages/ethikos/decide/elite.tsx =====
+import { PageContainer, ProTable, StatisticCard } from '@ant-design/pro-components';
+import { Progress, Statistic } from 'antd';
+import { useRequest } from 'ahooks';
+import dayjs from 'dayjs';
+import usePageTitle from '@/hooks/usePageTitle';
+import { fetchEliteBallots } from '@/services/decide';
+import type { Ballot } from '@/types';
+
+export default function EliteBallots() {
+  usePageTitle('Decide · Elite Ballots');
+
+  const { data, loading } = useRequest(fetchEliteBallots);
+
+  const columns = [
+    { title: 'Title', dataIndex: 'title', width: 260 },
+    {
+      title: 'Closes In',
+      dataIndex: 'closesAt',
+      width: 180,
+render: (v: string) => (
+  <Statistic.Countdown value={dayjs(v)} format="D[d] HH:mm:ss" />
+),
+    },
+    {
+      title: 'Turnout',
+      dataIndex: 'turnout',
+      width: 160,
+      render: (v: number) => <Progress type="circle" percent={v} />,
+    },
+    { title: 'Scope', dataIndex: 'scope', width: 100 },
+  ];
+
+  return (
+    <PageContainer ghost loading={loading}>
+      <ProTable<Ballot & { turnout: number }>
+        rowKey="id"
+        columns={columns}
+        dataSource={data?.ballots}
+        pagination={{ pageSize: 8 }}
+        search={false}
+      />
+    </PageContainer>
+  );
+}
+
+# ===== Fin de pages/ethikos/decide/elite.tsx =====
+
+# ===== Début de pages/ethikos/decide/public.tsx =====
+// pages/ethikos/decide/public.tsx
+import { PageContainer, ProTable } from '@ant-design/pro-components';
+import {
+  Radio,
+  Segmented,
+  Slider,
+  Popconfirm,
+  Progress,
+  Select,
+  Space,
+  Result,
+} from 'antd';
+import { useRequest } from 'ahooks';
+import { useMemo, useState } from 'react';
+import usePageTitle from '@/hooks/usePageTitle';
+
+import {
+  fetchPublicTopics,
+  submitPublicVote,
+  PublicTopic,
+  Category,
+  VotingFormat,
+} from '@/services/decide.mock';
+
+type Row = PublicTopic & { _selected?: string | number };
+
+export default function PublicVotePage() {
+  usePageTitle('Decide · Public Voting');
+
+  /* ------------------------------------------------------------ */
+  /*  Fetch data                                                  */
+  /* ------------------------------------------------------------ */
+  const {
+    data,
+    loading,
+    mutate: refresh,
+  } = useRequest(fetchPublicTopics);
+
+  const [activeCat, setActiveCat] = useState<string | 'all'>('all');
+  const [submitting, setSubmitting] = useState<string | null>(null);
+
+  const categories = data?.categories ?? [];
+  const topics = useMemo(() => {
+    if (!data?.topics) return [];
+    return activeCat === 'all'
+      ? data.topics
+      : data.topics.filter(t => t.categoryId === activeCat);
+  }, [data, activeCat]);
+
+  /* ------------------------------------------------------------ */
+  /*  Submit / mutate                                             */
+  /* ------------------------------------------------------------ */
+  const vote = async (topic: Row) => {
+    if (topic._selected == null) return;
+    setSubmitting(topic.id);
+    await submitPublicVote(topic.id, topic._selected);
+    await refresh(); // update turnout
+    setSubmitting(null);
+  };
+
+  /* ------------------------------------------------------------ */
+  /*  Column helpers                                              */
+  /* ------------------------------------------------------------ */
+  const renderVoteInput = (row: Row) => {
+    const commonProps = {
+      disabled: submitting === row.id,
+      onChange: (val: any) =>
+        (row._selected =
+          val?.target?.value ?? // Radio
+          val), // Slider / Segmented
+    };
+
+    switch (row.format as VotingFormat) {
+      case 'binary':
+        return (
+          <Radio.Group
+            options={(row.options ?? ['Yes', 'No']).map(v => ({
+              label: v,
+              value: v,
+            }))}
+            {...commonProps}
+          />
+        );
+
+      case 'multiple':
+        return (
+          <Radio.Group
+            options={(row.options ?? []).map(v => ({ label: v, value: v }))}
+            {...commonProps}
+          />
+        );
+
+      case 'scale': {
+        // 0-based numeric values
+        const labels = row.scaleLabels ?? [
+          '1',
+          '2',
+          '3',
+          '4',
+          '5',
+        ];
+        return (
+          <Space direction="vertical" size={4}>
+            <Segmented
+              options={labels}
+              {...commonProps}
+              block
+            />
+            {/* fallback slider for keyboard / mobile users */}
+            <Slider
+              min={0}
+              max={labels.length - 1}
+              step={1}
+              tooltip={{ formatter: idx => labels[idx as number] }}
+              {...commonProps}
+            />
+          </Space>
+        );
+      }
+
+      default:
+        return null;
+    }
+  };
+
+  const columns = [
+    { title: 'Question', dataIndex: 'question', width: 340 },
+    {
+      title: 'Vote',
+      dataIndex: 'vote',
+      render: (_: any, row: Row) =>
+        submitting === row.id ? (
+          <Result status="info" title="Submitting…" />
+        ) : (
+          <Popconfirm
+            title="Confirm your vote?"
+            okText="Yes"
+            cancelText="No"
+            onConfirm={() => vote(row)}
+          >
+            {renderVoteInput(row)}
+          </Popconfirm>
+        ),
+    },
+    {
+      title: 'Turnout',
+      dataIndex: 'turnout',
+      width: 140,
+      render: (v: number) => <Progress percent={v} size="small" />,
+    },
+    { title: 'Closes', dataIndex: 'closesAt', valueType: 'datetime' },
+  ];
+
+  /* ------------------------------------------------------------ */
+  /*  UI                                                          */
+  /* ------------------------------------------------------------ */
+  return (
+    <PageContainer ghost loading={loading}>
+      <Space style={{ marginBottom: 16 }}>
+        <b>Category:</b>
+        <Select
+          value={activeCat}
+          onChange={setActiveCat}
+          options={[
+            { label: 'All', value: 'all' },
+            ...categories.map((c: Category) => ({
+              label: c.name,
+              value: c.id,
+            })),
+          ]}
+          style={{ width: 260 }}
+        />
+      </Space>
+
+      <ProTable<Row>
+        rowKey="id"
+        columns={columns as any}
+        dataSource={topics}
+        pagination={{ pageSize: 6 }}
+        search={false}
+      />
+    </PageContainer>
+  );
+}
+
+# ===== Fin de pages/ethikos/decide/public.tsx =====
+
+# ===== Début de pages/ethikos/decide/results.tsx =====
+import { PageContainer, ProTable } from '@ant-design/pro-components';
+import { Tag } from 'antd';
+import { useRequest } from 'ahooks';
+import usePageTitle from '@/hooks/usePageTitle';
+import { fetchDecisionResults } from '@/services/decide';
+
+type ResultRow = {
+  id: string;
+  title: string;
+  scope: 'Elite' | 'Public';
+  passed: boolean;
+  closesAt: string;
+  region: string;
+};
+
+export default function ResultsArchive() {
+  usePageTitle('Decide · Results Archive');
+
+  const { data, loading } = useRequest(fetchDecisionResults);
+
+  const columns = [
+    { title: 'Title', dataIndex: 'title', width: 260 },
+    {
+      title: 'Result',
+      dataIndex: 'passed',
+      width: 120,
+      render: (v: boolean) => (
+        <Tag color={v ? 'green' : 'red'}>{v ? 'PASSED' : 'REJECTED'}</Tag>
+      ),
+      filters: [
+        { text: 'Passed', value: 'true' },
+        { text: 'Rejected', value: 'false' },
+      ],
+      onFilter: (val: any, row: ResultRow) => String(row.passed) === val,
+    },
+    { title: 'Scope', dataIndex: 'scope', width: 120, filters: true },
+    { title: 'Region', dataIndex: 'region', width: 140, filters: true },
+    { title: 'Closed', dataIndex: 'closesAt', valueType: 'date' },
+  ];
+
+  return (
+    <PageContainer ghost loading={loading}>
+      <ProTable<ResultRow>
+        rowKey="id"
+        columns={columns}
+        dataSource={data?.items}
+        pagination={{ pageSize: 10 }}
+        search={false}
+      />
+    </PageContainer>
+  );
+}
+
+# ===== Fin de pages/ethikos/decide/results.tsx =====
+
+# ===== Début de pages/ethikos/decide/methodology.tsx =====
+import { PageContainer } from '@ant-design/pro-components';
+import { Typography, Collapse, Steps, Alert } from 'antd';
+import usePageTitle from '@/hooks/usePageTitle';
+
+export default function Methodology() {
+  usePageTitle('Decide · Methodology');
+
+  return (
+    <PageContainer ghost>
+      <Typography.Title>How We Count Votes</Typography.Title>
+
+      <Collapse
+        items={[
+          {
+            key: 'weighting',
+            label: '1 · Stake-weighted counting',
+            children: (
+              <Typography.Paragraph>
+                Each ballot is tallied with quadratic weighting to dampen plutocratic influence…
+              </Typography.Paragraph>
+            ),
+          },
+          {
+            key: 'verification',
+            label: '2 · Identity verification',
+            children: (
+              <Typography.Paragraph>
+                Voters authenticate via the Desjardins meritocratic ID layer…
+              </Typography.Paragraph>
+            ),
+          },
+        ]}
+      />
+
+      <Steps
+        current={3}
+        items={[
+          { title: 'Propose' },
+          { title: 'Deliberate' },
+          { title: 'Vote' },
+          { title: 'Audit' },
+        ]}
+        style={{ marginTop: 40 }}
+      />
+
+      <Alert
+        type="info"
+        message="Open data"
+        description="Raw ballots are published (SHA-256 hashed) after a 72-hour cooling-off period."
+        showIcon
+        style={{ marginTop: 24 }}
+      />
+    </PageContainer>
+  );
+}
+
+# ===== Fin de pages/ethikos/decide/methodology.tsx =====
+
