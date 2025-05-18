@@ -7,7 +7,7 @@ from kreative.immersive.views import ImmersiveExperienceViewSet
 app_name = "immersive"
 
 router = DefaultRouter()
-router.register(r"immersive_experiences", ImmersiveExperienceViewSet)
+router.register(r"immersive_experiences", ImmersiveExperienceViewSet, basename="immersive_experiences")
 
 urlpatterns = [
     path("", include((router.urls, app_name), namespace=app_name)),

@@ -1,5 +1,3 @@
-# apps/keenkonnect/expert_match/urls.py
-
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from keenkonnect.expert_match.views import (
@@ -11,9 +9,21 @@ from keenkonnect.expert_match.views import (
 app_name = "expert_match"
 
 router = DefaultRouter()
-router.register(r"expert_match_requests", ExpertMatchRequestViewSet)
-router.register(r"candidate_profiles",    CandidateProfileViewSet)
-router.register(r"match_scores",          MatchScoreViewSet)
+router.register(
+    r"expert_match_requests",
+    ExpertMatchRequestViewSet,
+    basename="expert-match-request",
+)
+router.register(
+    r"candidate_profiles",
+    CandidateProfileViewSet,
+    basename="candidate-profile",
+)
+router.register(
+    r"match_scores",
+    MatchScoreViewSet,
+    basename="match-score",
+)
 
 urlpatterns = [
     path("", include((router.urls, app_name), namespace=app_name)),

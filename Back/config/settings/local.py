@@ -50,3 +50,14 @@ DEBUG_TOOLBAR_CONFIG = {
     "SHOW_TOOLBAR_CALLBACK": lambda request: True,
     "IS_RUNNING_TESTS": False,
 }
+
+# --------------------------------------------------------------------
+# REST Framework : autoriser les requêtes anonymes en développement
+REST_FRAMEWORK = {
+    # En DEV, on autorise tout
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    # (Optionnel) si vous voulez aussi désactiver complètement les authentifications
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+}

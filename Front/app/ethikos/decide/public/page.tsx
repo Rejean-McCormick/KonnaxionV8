@@ -1,186 +1,183 @@
 'use client'
 
-// pages/ethikos/decide/public.tsx
-import { PageContainer, ProTable } from '@ant-design/pro-components';
-import {
-  Radio,
-  Segmented,
-  Slider,
-  Popconfirm,
-  Progress,
-  Select,
-  Space,
-  Result,
-} from 'antd';
-import { useRequest } from 'ahooks';
-import { useMemo, useState } from 'react';
-import usePageTitle from '@/hooks/usePageTitle';
+import React, { useEffect, useState } from 'react'
+import { PageContainer, ProTable } from '@ant-design/pro-components'
+import { Select, Space, Input, Popconfirm, Progress, Radio, Slider } from 'antd'
+import axios from 'axios'
+import usePageTitle from '@/hooks/usePageTitle'
 
-import {
-  fetchPublicTopics,
-  submitPublicVote,
-  PublicTopic,
-  Category,
-  VotingFormat,
-} from '@/services/decide.mock';
-
-type Row = PublicTopic & { _selected?: string | number };
+interface Category { id: number; name: string }
+interface Format   { id: number; name: string }
+interface PublicTopic {
+  id: number
+  question: string
+  description?: string
+  debatecategory_id: number
+  responseformat_id: number
+  turnout: number
+  options?: string[]
+  scaleLabels?: string[]
+}
 
 export default function PublicVotePage() {
-  usePageTitle('Decide · Public Voting');
+  usePageTitle('Decide · Public Voting')
 
-  /* ------------------------------------------------------------ */
-  /*  Fetch data                                                  */
-  /* ------------------------------------------------------------ */
-  const {
-    data,
-    loading,
-    mutate: refresh,
-  } = useRequest(fetchPublicTopics);
+  const [categories, setCategories] = useState<Category[]>([])
+  const [formats, setFormats]       = useState<Format[]>([])
+  const [topicsData, setTopicsData] = useState<{ results: PublicTopic[]; count: number }>({ results: [], count: 0 })
+  const [activeCat, setActiveCat]   = useState<number | 'all'>('all')
+  const [activeFormats, setActiveFormats] = useState<number[]>([])
+  const [searchTerm, setSearchTerm] = useState<string>('')
+  const [page, setPage]             = useState<number>(1)
+  const pageSize = 20
 
-  const [activeCat, setActiveCat] = useState<string | 'all'>('all');
-  const [submitting, setSubmitting] = useState<string | null>(null);
+  // 1. Load categories & formats
+  useEffect(() => {
+    axios
+      .get<Category[]>('/api/home/debatecategory/', { params: { is_deleted: false } })
+      .then(r => setCategories(r.data))
+    axios
+      .get<Format[]>('/api/home/responseformat/', { params: { is_deleted: false } })
+      .then(r => setFormats(r.data))
+  }, [])
 
-  const categories = data?.categories ?? [];
-  const topics = useMemo(() => {
-    if (!data?.topics) return [];
-    return activeCat === 'all'
-      ? data.topics
-      : data.topics.filter(t => t.categoryId === activeCat);
-  }, [data, activeCat]);
+  // 2. Load topics with filters & pagination
+  useEffect(() => {
+    axios
+      .get<{ results: PublicTopic[]; count: number }>('/api/home/debatetopic/', {
+        params: {
+          is_active: true,
+          is_deleted: false,
+          debatecategory_id: activeCat === 'all' ? undefined : activeCat,
+          responseformat_id: activeFormats,
+          search: searchTerm,
+          page,
+          page_size: pageSize,
+          ordering: '-created_at',
+        },
+      })
+      .then(r => setTopicsData(r.data))
+  }, [activeCat, activeFormats, searchTerm, page])
 
-  /* ------------------------------------------------------------ */
-  /*  Submit / mutate                                             */
-  /* ------------------------------------------------------------ */
-  const vote = async (topic: Row) => {
-    if (topic._selected == null) return;
-    setSubmitting(topic.id);
-    await submitPublicVote(topic.id, topic._selected);
-    await refresh(); // update turnout
-    setSubmitting(null);
-  };
+  // 3. Submit a vote and refresh
+  const vote = async (row: PublicTopic, value: any) => {
+    await axios.post('/api/home/publicvote/', { topic_id: row.id, value })
+    // refresh current page
+    axios
+      .get<{ results: PublicTopic[]; count: number }>('/api/home/debatetopic/', {
+        params: {
+          is_active: true,
+          is_deleted: false,
+          debatecategory_id: activeCat === 'all' ? undefined : activeCat,
+          responseformat_id: activeFormats,
+          search: searchTerm,
+          page,
+          page_size: pageSize,
+          ordering: '-created_at',
+        },
+      })
+      .then(r => setTopicsData(r.data))
+  }
 
-  /* ------------------------------------------------------------ */
-  /*  Column helpers                                              */
-  /* ------------------------------------------------------------ */
-  const renderVoteInput = (row: Row) => {
-    const commonProps = {
-      disabled: submitting === row.id,
-      onChange: (val: any) =>
-        (row._selected =
-          val?.target?.value ?? // Radio
-          val), // Slider / Segmented
-    };
+  // 4. Render vote input based on format
+  const renderVoteInput = (row: PublicTopic) => {
+    const handleChange = (e: any) => {
+      const val = e?.target?.value ?? e
+      vote(row, val)
+    }
 
-    switch (row.format as VotingFormat) {
-      case 'binary':
+    switch (row.responseformat_id) {
+      case 1: // binary (Yes/No)
         return (
           <Radio.Group
-            options={(row.options ?? ['Yes', 'No']).map(v => ({
-              label: v,
-              value: v,
-            }))}
-            {...commonProps}
+            options={(row.options ?? ['Yes', 'No']).map(v => ({ label: v, value: v }))}
+            onChange={handleChange}
           />
-        );
-
-      case 'multiple':
+        )
+      case 2: // multiple choice
         return (
           <Radio.Group
             options={(row.options ?? []).map(v => ({ label: v, value: v }))}
-            {...commonProps}
+            onChange={handleChange}
           />
-        );
-
-      case 'scale': {
-        // 0-based numeric values
-        const labels = row.scaleLabels ?? [
-          '1',
-          '2',
-          '3',
-          '4',
-          '5',
-        ];
+        )
+      case 3: // scale
+        const labels = row.scaleLabels ?? ['1', '2', '3', '4', '5']
         return (
           <Space direction="vertical" size={4}>
-            <Segmented
-              options={labels}
-              {...commonProps}
-              block
-            />
-            {/* fallback slider for keyboard / mobile users */}
             <Slider
               min={0}
               max={labels.length - 1}
               step={1}
-              tooltip={{ formatter: idx => labels[idx as number] }}
-              {...commonProps}
+              tooltip={{ formatter: idx => labels[idx] }}
+              onAfterChange={handleChange}
             />
           </Space>
-        );
-      }
-
+        )
       default:
-        return null;
+        return null
     }
-  };
+  }
 
   const columns = [
-    { title: 'Question', dataIndex: 'question', width: 340 },
+    { title: 'Question', dataIndex: 'question', width: 360 },
     {
       title: 'Vote',
       dataIndex: 'vote',
-      render: (_: any, row: Row) =>
-        submitting === row.id ? (
-          <Result status="info" title="Submitting…" />
-        ) : (
-          <Popconfirm
-            title="Confirm your vote?"
-            okText="Yes"
-            cancelText="No"
-            onConfirm={() => vote(row)}
-          >
-            {renderVoteInput(row)}
-          </Popconfirm>
-        ),
+      render: (_: any, row: PublicTopic) => (
+        <Popconfirm title="Confirm your vote?" onConfirm={() => {}}>
+          {renderVoteInput(row)}
+        </Popconfirm>
+      ),
     },
     {
       title: 'Turnout',
       dataIndex: 'turnout',
-      width: 140,
       render: (v: number) => <Progress percent={v} size="small" />,
     },
-    { title: 'Closes', dataIndex: 'closesAt', valueType: 'datetime' },
-  ];
+  ]
 
-  /* ------------------------------------------------------------ */
-  /*  UI                                                          */
-  /* ------------------------------------------------------------ */
   return (
-    <PageContainer ghost loading={loading}>
-      <Space style={{ marginBottom: 16 }}>
-        <b>Category:</b>
+    <PageContainer ghost>
+      <Space wrap style={{ marginBottom: 16 }}>
         <Select
+          placeholder="Catégorie"
+          allowClear
           value={activeCat}
-          onChange={setActiveCat}
+          onChange={val => { setActiveCat(val); setPage(1) }}
+          style={{ width: 200 }}
           options={[
             { label: 'All', value: 'all' },
-            ...categories.map((c: Category) => ({
-              label: c.name,
-              value: c.id,
-            })),
+            ...categories.map(c => ({ label: c.name, value: c.id })),
           ]}
+        />
+        <Select
+          mode="multiple"
+          placeholder="Formats"
+          value={activeFormats}
+          onChange={val => { setActiveFormats(val); setPage(1) }}
+          style={{ width: 200 }}
+          options={formats.map(f => ({ label: f.name, value: f.id }))}
+        />
+        <Input.Search
+          placeholder="Rechercher…"
+          onSearch={val => { setSearchTerm(val); setPage(1) }}
           style={{ width: 260 }}
         />
       </Space>
 
-      <ProTable<Row>
+      <ProTable<PublicTopic>
         rowKey="id"
         columns={columns as any}
-        dataSource={topics}
-        pagination={{ pageSize: 6 }}
+        dataSource={topicsData.results}
+        pagination={{
+          total: topicsData.count,
+          current: page,
+          pageSize,
+          onChange: setPage,
+        }}
         search={false}
       />
     </PageContainer>
-  );
+  )
 }

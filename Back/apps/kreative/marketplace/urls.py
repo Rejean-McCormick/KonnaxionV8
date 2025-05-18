@@ -11,9 +11,9 @@ from kreative.marketplace.views import (
 app_name = "marketplace"
 
 router = DefaultRouter()
-router.register(r"artist_profiles",       ArtistProfileViewSet)
-router.register(r"commissions",           CommissionViewSet)
-router.register(r"marketplace_listings",  MarketplaceListingViewSet)
+router.register(r"artist_profiles", ArtistProfileViewSet, basename="artist_profiles")
+router.register(r"commissions", CommissionViewSet, basename="commissions")
+router.register(r"marketplace_listings", MarketplaceListingViewSet, basename="marketplace_listings")
 
 urlpatterns = [
     path("", include((router.urls, app_name), namespace=app_name)),

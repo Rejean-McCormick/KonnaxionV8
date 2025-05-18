@@ -13,13 +13,13 @@ urlpatterns = [
         "api/ekoh/",
         include(("konnaxion.ekoh.urls", "ekoh"), namespace="ekoh"),
     ),
-    
+
     # Debate Arena endpoints
     path(
         "api/debate/",
         include(("ethikos.debate_arena.urls", "debate_arena"), namespace="debate_arena"),
     ),
-    
+
     # Ethikos suite of endpoints
     path(
         "api/ethikos/home/",
@@ -41,7 +41,7 @@ urlpatterns = [
         "api/ethikos/stats/",
         include(("ethikos.stats.urls", "stats"), namespace="stats"),
     ),
-    
+
     # Additional Ethikos endpoints
     path(
         "api/impact/",
@@ -59,9 +59,25 @@ urlpatterns = [
         "api/trust/",
         include(("ethikos.trust.urls", "trust"), namespace="trust"),
     ),
-    path("api/decide/", include(("ethikos.resolution.urls", "resolution"), namespace="decide")),
-    path("api/deliberate/", include(("ethikos.debate_arena.urls", "debate_arena"), namespace="deliberate")),
 
+    # Legacy "decide" mount for resolution
+    path(
+        "api/decide/",
+        include(("ethikos.resolution.urls", "resolution"), namespace="decide"),
+    ),
+
+    # New alias: expose DebateTopicViewSet under /api/decide/topics/
+    path(
+        "api/decide/topics/",
+        include(("ethikos.home.urls", "home")),
+        name="decide-topics",
+    ),
+
+    # Deliberate endpoints
+    path(
+        "api/deliberate/",
+        include(("ethikos.debate_arena.urls", "debate_arena"), namespace="deliberate"),
+    ),
 
     # Keen apps endpoints
     path(
@@ -80,7 +96,7 @@ urlpatterns = [
         "api/keen/team-formation/",
         include(("keenkonnect.team_formation.urls", "team_formation"), namespace="team_formation"),
     ),
-    
+
     # Konnaxion endpoints
     path(
         "api/konnaxion/core/",
@@ -98,8 +114,9 @@ urlpatterns = [
         "api/konnaxion/search/",
         include(("konnaxion.search.urls", "search"), namespace="search"),
     ),
-    path("api/admin/", include(("konnaxion.moderation.urls", "moderation"), namespace="admin")),
-    
+    # The moderation module is currently commented out because it does not exist:
+    # path("api/admin/", include(("konnaxion.moderation.urls", "moderation"), namespace="admin")),
+
     # Konnected endpoints
     path(
         "api/konnected/foundation/",
@@ -117,15 +134,12 @@ urlpatterns = [
         "api/konnected/offline/",
         include(("konnected.offline.urls", "offline"), namespace="offline"),
     ),
-    
+
     # Kreative endpoints
     # path(
     #     "api/kreative/core/",
     #     include(("kreative.core.urls", "core"), namespace="core"),
     # ),
-    
+
     # Add additional endpoints here as needed.
-    
-    
-    
 ]

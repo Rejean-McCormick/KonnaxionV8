@@ -23,3 +23,8 @@ class DebugTestView(APIView):
     def handle_exception(self, exc):
         logger.exception("Erreur dans DebugTestView pour %s : %s", request.user, exc)
         return super().handle_exception(exc)
+
+from django.http import HttpResponse
+
+def debug_test(request):
+    return HttpResponse("Debug test OK")

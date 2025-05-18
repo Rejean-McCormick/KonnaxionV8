@@ -1,0 +1,27 @@
+question,description,debatecategory_id,responseformat_id,options,scale_labels,is_active
+Faut-il exiger un consentement distinct pour chaque type de données collectées par les plateformes numériques ?,,1,1,"[""Oui"",""Non""]",,True
+Faut-il accorder un droit automatique à l’oubli numérique pour tout citoyen canadien ?,,1,1,"[""Oui"",""Non""]",,True
+Quelle durée maximale de conservation des données personnelles jugez-vous appropriée ?,,1,2,,"[""1"",""2"",""3"",""4"",""5""]",True
+Faut-il interdire l’usage de la reconnaissance faciale par les forces de l’ordre sans aval judiciaire ?,,1,1,"[""Oui"",""Non""]",,True
+"Sur une échelle de 1 (peu rigoureux) à 5 (très rigoureux), comment jugez-vous l’obligation d’audits annuels des algorithmes publics ?",,1,2,,"[""Peu rigoureux"",""2"",""3"",""4"",""Très rigoureux""]",True
+Faut-il imposer un signalement obligatoire des violations de données dans les 48 heures ?,,1,1,"[""Oui"",""Non""]",,True
+Faut-il créer un registre public des traitements automatisés impliquant des données sensibles ?,,1,1,"[""Oui"",""Non""]",,True
+"Sur une échelle de 1 (faible) à 5 (fort), quelle limite de transfert de données hors du pays jugez-vous acceptable ?",,1,2,,"[""Faible"",""2"",""3"",""4"",""Fort""]",True
+Faut-il interdire le stockage des données de citoyens canadiens sur des serveurs situés hors du pays ?,,1,1,"[""Oui"",""Non""]",,True
+"Sur une échelle de 1 (peu accessible) à 5 (très accessible), comment jugez-vous la création d’un tribunal spécialisé pour les litiges de vie privée ?",,1,2,,"[""Peu accessible"",""2"",""3"",""4"",""Très accessible""]",True
+Faut-il tenir un référendum national pour passer à un système de représentation proportionnelle mixte ?,,2,1,"[""Oui"",""Non""]",,True
+"Sur une échelle de 1 (faible soutien) à 5 (fort soutien), appuyez-vous l’introduction du vote alternatif ?",,2,2,,"[""Faible soutien"",""2"",""3"",""4"",""Fort soutien""]",True
+"Sur une échelle de 1 (peu transparent) à 5 (très transparent), comment jugez-vous l’interdiction du financement des partis par des entreprises ?",,2,2,,"[""Peu transparent"",""2"",""3"",""4"",""Très transparent""]",True
+"Sur une échelle de 1 (peu prioritaire) à 5 (très prioritaire), quelle priorité accordez-vous à l’extension de la couverture des services de santé mentale ?",,3,2,,"[""Peu prioritaire"",""2"",""3"",""4"",""Très prioritaire""]",True
+Faut-il garantir un rendez-vous médical dans un délai maximum de 10 jours après la demande ?,,3,1,"[""Oui"",""Non""]",,True
+"Sur une échelle de 1 (peu prioritaire) à 5 (très prioritaire), quelle priorité accordez-vous à l’extension de la couverture des services de santé mentale ?",,3,2,,"[""Peu prioritaire"",""2"",""3"",""4"",""Très prioritaire""]",True
+Faut-il garantir un rendez-vous médical dans un délai maximum de 10 jours après la demande ?,,3,1,"[""Oui"",""Non""]",,True
+"Sur une échelle de 1 (peu utile) à 5 (très utile), comment jugez-vous la subvention d’un an de cours de français/anglais pour tous les nouveaux arrivants ?",,4,2,,"[""Peu utile"",""2"",""3"",""4"",""Très utile""]",True
+"Sur une échelle de 1 (trop strict) à 5 (trop laxiste), comment jugez-vous l’instauration d’un test sur les institutions canadiennes pour l’acquisition de la citoyenneté ?",,4,2,,"[""Trop strict"",""2"",""3"",""4"",""Trop laxiste""]",True
+Faut-il adopter une loi garantissant l’accès à l’eau potable sur toutes les réserves autochtones (Bill C-61) ?,,7,1,"[""Oui"",""Non""]",,True
+"Sur une échelle de 1 (pas du tout) à 5 (tout à fait), dans quelle mesure soutenez-vous l’obligation pour les plateformes numériques de rémunérer les médias locaux (Bill C-18) ?",,8,2,,"[""Pas du tout"",""2"",""3"",""4"",""Tout à fait""]",True
+Faut-il encadrer les versements fédéraux en matière de logement et modifier les lois connexes (Bill C-356) ?,,4,1,"[""Oui"",""Non""]",,True
+Faut-il autoriser de nouvelles plaintes des anciens employés contre leurs anciens employeurs via des amendements au Code canadien du travail (Bill C-378) ?,,6,1,"[""Oui"",""Non""]",,True
+"Sur une échelle de 1 (pas du tout) à 5 (tout à fait), dans quelle mesure soutenez-vous les amendements omnibus à la Loi sur l’évaluation d’impact (Bill C-69) ?",,1,2,,"[""Pas du tout"",""2"",""3"",""4"",""Tout à fait""]",True
+Faut-il renforcer l’usage du français dans l’ensemble des activités économiques et administratives du Québec (Bill 96) ?,,9,1,"[""Oui"",""Non""]",,True
+Faut-il interdire aux employés de l’État en position d’autorité de porter des symboles religieux au travail (Bill 21) ?,,2,1,"[""Oui"",""Non""]",,True

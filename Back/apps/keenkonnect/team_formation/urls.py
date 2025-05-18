@@ -1,5 +1,3 @@
-# apps/keenkonnect/team_formation/urls.py
-
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from keenkonnect.team_formation.views import (
@@ -10,8 +8,16 @@ from keenkonnect.team_formation.views import (
 app_name = "team_formation"
 
 router = DefaultRouter()
-router.register(r"team_formation_requests",   TeamFormationRequestViewSet)
-router.register(r"team_formation_candidates", TeamFormationCandidateViewSet)
+router.register(
+    r"team_formation_requests",
+    TeamFormationRequestViewSet,
+    basename="team_formation_requests"
+)
+router.register(
+    r"team_formation_candidates",
+    TeamFormationCandidateViewSet,
+    basename="team_formation_candidates"
+)
 
 urlpatterns = [
     path("", include((router.urls, app_name), namespace=app_name)),

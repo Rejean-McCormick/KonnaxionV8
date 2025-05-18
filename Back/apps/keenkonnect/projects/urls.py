@@ -7,9 +7,9 @@ from keenkonnect.projects.views import ProjectViewSet, MilestoneViewSet, TaskVie
 app_name = "projects"
 
 router = DefaultRouter()
-router.register(r"projects",   ProjectViewSet)
-router.register(r"milestones", MilestoneViewSet)
-router.register(r"tasks",      TaskViewSet)
+router.register(r"projects", ProjectViewSet, basename="project")
+router.register(r"milestones", MilestoneViewSet, basename="milestone")
+router.register(r"tasks", TaskViewSet, basename="task")
 
 urlpatterns = [
     path("", include((router.urls, app_name), namespace=app_name)),

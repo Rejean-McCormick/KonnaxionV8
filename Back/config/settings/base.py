@@ -74,6 +74,7 @@ DJANGO_APPS = [
     "django.contrib.admin",
     "django.forms",
     "django_extensions",
+    "django_filters",
 ]
 THIRD_PARTY_APPS = [
     "celery",
@@ -326,20 +327,27 @@ SOCIALACCOUNT_FORMS = {"signup": "users.forms.UserSocialSignupForm"}
 # django-rest-framework SETTINGS
 # ------------------------------------------------------------------------------
 REST_FRAMEWORK = {
-    # For development only: allow all requests without authentication.
+    # Pour le développement : autorise toutes les requêtes (à restreindre en prod)
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
     ],
-    # If you want to keep authentication classes (they won’t block requests if permission is AllowAny)
+    # Méthodes d’authentification (Session & Token)
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication",
     ],
-    # Optionally, include your schema class if needed:
+    # Backends de filtrage par défaut
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+    ],
+    # (Optionnel) pagination par défaut
+    # "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    # "PAGE_SIZE": 20,
+    # (Optionnel) schéma OpenAPI
     # "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
-
-
 # ------------------------------------------------------------------------------
 # django-cors-headers SETTINGS
 # ------------------------------------------------------------------------------

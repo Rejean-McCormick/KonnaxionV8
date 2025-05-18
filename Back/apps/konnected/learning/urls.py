@@ -12,10 +12,10 @@ from konnected.learning.views import (
 app_name = "learning"
 
 router = DefaultRouter()
-router.register(r"lessons",   LessonViewSet)
-router.register(r"quizzes",   QuizViewSet)
-router.register(r"questions", QuestionViewSet)
-router.register(r"answers",   AnswerViewSet)
+router.register(r"lessons", LessonViewSet, basename="lessons")
+router.register(r"quizzes", QuizViewSet, basename="quizzes")
+router.register(r"questions", QuestionViewSet, basename="questions")
+router.register(r"answers", AnswerViewSet, basename="answers")
 
 urlpatterns = [
     path("", include((router.urls, app_name), namespace=app_name)),
